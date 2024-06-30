@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::database::Database;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Account {
     pub name: String,
     pub about: String,
@@ -31,7 +31,7 @@ pub async fn create_account(post_account_args: Json<Account>, database: web::Dat
     let key = "generated".to_string();
 
     let account = Account::new(name, "".to_string(), "".to_string(), key).await;
-    match database.insert_account(account).await {
+    match database.insert_account(account.clone()).await {
         Ok(_) => {
             HttpResponse::Ok().body(format!("Account created! This is your auth key: {}", account.auth_key.to_string()))
         },

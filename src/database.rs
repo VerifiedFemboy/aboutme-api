@@ -3,6 +3,7 @@ use mongodb::options::ClientOptions;
 use crate::account::Account;
 
 #[derive(Clone)]
+#[warn(dead_code)]
 pub struct Database {
     client: Client,
     account_collection: Collection<Account>
