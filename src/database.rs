@@ -1,4 +1,4 @@
-use mongodb::{Client, Collection};
+use mongodb::{Client, Collection, error};
 use mongodb::options::ClientOptions;
 use crate::account::Account;
 
@@ -15,5 +15,10 @@ impl Database {
         let db = client.database(dbname);
         let collection = db.collection::<Account>("accounts");
         Ok(Self{client, account_collection: collection})
+    }
+
+    pub async fn insert_account(&self, account: Account) -> error::Result<()> {
+        self.account_collection.insert_one(account).await?;
+        Ok(())
     }
 }

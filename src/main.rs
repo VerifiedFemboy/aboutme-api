@@ -1,7 +1,7 @@
 use std::fs;
 
 use actix_web::{App, get, HttpResponse, HttpServer};
-use serde_json::error::Category::Data;
+use actix_web::web::Data;
 use serde_json::Value;
 
 use crate::database::Database;
@@ -15,7 +15,7 @@ async fn main() -> std::io::Result<()> {
     let v: Value = serde_json::from_str(&config_data).unwrap();
 
     if let Some(mongo) = v.get("MONGO-URI").and_then(Value::as_str) {
-        let db = Database::new(mongo, "aboutme-server").await.expect("Failed with MongoDB connection...");
+        let db = Database::new(mongo, "server-db").await.expect("Failed with MongoDB connection...");
         if let Some(ip) = v.get("IP-HOST").and_then(Value::as_str) {
             HttpServer::new(move || App::new()
                 .app_data(Data::new(db.clone()))
