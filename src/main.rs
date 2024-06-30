@@ -1,22 +1,35 @@
 use std::fs;
 
 use actix_web::{App, get, HttpResponse, HttpServer};
+use serde_json::error::Category::Data;
 use serde_json::Value;
+
+use crate::database::Database;
+
+mod account;
+mod database;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let config_data = fs::read_to_string("config.json").expect("Should've been able to read the config file");
     let v: Value = serde_json::from_str(&config_data).unwrap();
 
-    if let Some(ip) = v.get("IP-HOST").and_then(Value::as_str) {
-        HttpServer::new(move || App::new().service(index))
-            .bind(ip)?
-            .run()
-            .await
-    } else {
-        panic!("Something went wrong while launching the API. Check the config file");
-    }
+    if let Some(mongo) = v.get("MONGO-URI").and_then(Value::as_str) {
+        let db = Database::new(mongo, "aboutme-server").await.expect("Failed with MongoDB connection...");
+        if let Some(ip) = v.get("IP-HOST").and_then(Value::as_str) {
+            HttpServer::new(move || App::new()
+                .app_data(Data::new(db.clone()))
+                .service(index))
+                .bind(ip)?
+                .run()
+                .await
+        } else {
+            panic!("Something went wrong while launching the API. Check the config file");
+        }
 
+    } else {
+        panic!("Something went wrong with mongo uri. Check the config file")
+    }
 }
 
 #[get("/")]
