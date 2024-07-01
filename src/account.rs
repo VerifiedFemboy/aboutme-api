@@ -31,7 +31,7 @@ pub async fn create_account(post_account_args: Json<Account>, database: web::Dat
     let name = post_account_args.name.to_string();
     let key = "generated".to_string();
 
-    let account = Account::new(ObjectId::new(), name, "".to_string(), "".to_string(), key).await;
+    let account = Account::new(ObjectId::new(), name, "".to_string(), "".to_string(), key);
     match database.insert_account(account.clone()).await {
         Ok(_) => {
             HttpResponse::Ok().body(format!("Account created! This is your auth key: {}", account.auth_key.to_string()))
@@ -42,7 +42,11 @@ pub async fn create_account(post_account_args: Json<Account>, database: web::Dat
     }
 }
 
-#[get("/account")]
-pub async fn get_account() -> HttpResponse {
-
+#[get("/account/{account_id}")]
+pub async fn get_account(account_id: web::Path<String>, database: web::Data<Database>) -> HttpResponse {
+    match database.get_account_by_id(&account_id).await {
+        Ok(Some(account)) => HttpResponse::Ok().json(account),
+        Ok(None) => HttpResponse::NotFound().body("Account not found!"),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Something went wrong! {e}"))
+    }
 }
