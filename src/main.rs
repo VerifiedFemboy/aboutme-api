@@ -3,7 +3,7 @@ use std::fs;
 use actix_web::{App, get, HttpResponse, HttpServer};
 use actix_web::web::Data;
 use serde_json::Value;
-
+use crate::account::{create_account, get_account};
 use crate::database::Database;
 
 mod account;
@@ -19,7 +19,9 @@ async fn main() -> std::io::Result<()> {
         if let Some(ip) = v.get("IP-HOST").and_then(Value::as_str) {
             HttpServer::new(move || App::new()
                 .app_data(Data::new(db.clone()))
-                .service(index))
+                .service(index)
+                .service(get_account)
+                .service(create_account))
                 .bind(ip)?
                 .run()
                 .await
