@@ -8,6 +8,7 @@ use crate::database::Database;
 
 mod account;
 mod database;
+mod auth;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

@@ -2,7 +2,7 @@ use actix_web::{get, HttpResponse, post, web};
 use actix_web::web::Json;
 use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
-
+use crate::auth::AuthKey;
 use crate::database::Database;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -12,6 +12,11 @@ pub struct Account {
     pub about: String,
     pub create_date: String,
     pub auth_key: String
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+struct AccountCreatePost {
+    pub name: String
 }
 
 impl Account {
@@ -26,10 +31,10 @@ impl Account {
 }
 
 #[post("/account/create")]
-pub async fn create_account(post_account_args: Json<Account>, database: web::Data<Database>) -> HttpResponse {
+pub async fn create_account(post_account_args: Json<AccountCreatePost>, database: web::Data<Database>) -> HttpResponse {
 
     let name = post_account_args.name.to_string();
-    let key = "generated".to_string();
+    let key = AuthKey::generate_string();
 
     let account = Account::new(ObjectId::new(), name, "".to_string(), "".to_string(), key);
     match database.insert_account(account.clone()).await {

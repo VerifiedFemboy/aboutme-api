@@ -1,4 +1,4 @@
 {
   "IP-HOST" : "127.0.0.1:3000",
-  "MONGO-URI": "mongodb+srv://server:X6s6wh8BvLaihAcd@server-db.bo8koy9.mongodb.net/?retryWrites=true&w=majority&appName=server-db"
+  "MONGO-URI": ""
 }
